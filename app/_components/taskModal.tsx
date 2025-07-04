@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react"
 import { Task } from "../_utils/types"
-import { postTasks } from "../_api/fetch"
+import { postTasksAPI } from "../_api/fetch"
+import { useTaskContext } from "../_useContext/taskContext"
 
 export default function TaskModal({ isOpen, task, onClose }: { isOpen: boolean, task: Task, onClose: () => void }) {
     // gestion de l'ouverture et de la fermeture du modal
+    const { setTasks, refreshTasks } = useTaskContext()
     const modalRef = useRef<HTMLDialogElement>(null)
 
     useEffect(() => {
@@ -38,7 +40,9 @@ export default function TaskModal({ isOpen, task, onClose }: { isOpen: boolean, 
             completed: false,
         }
 
-        postTasks(payload)
+        postTasksAPI(payload)
+            .then(() => refreshTasks())
+            .catch(error => console.error(error))
         onClose()
     }
 

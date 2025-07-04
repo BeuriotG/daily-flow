@@ -1,58 +1,38 @@
 'use client'
 import { createContext, useContext, useState } from "react";
 import { Task } from "../_utils/types";
-import { deleteTasks, getTasks, postTasks } from "../_api/fetch";
+import { getTasksAPI } from "../_api/fetch";
 
+// Défini le Contexte pour les tâches
 export const TaskContext = createContext<
   | {
     tasks: Task[];
     setTasks: (tasks: Task[]) => void;
     refreshTasks: () => void;
-    addTask: (task: Task) => void;
-    deleteTask: (id: number) => void;
-    newTask: Task | null;
-    setNewTask: (task: Task | null) => void;
-    isTaskModalOpen: boolean;
-    setIsTaskModalOpen: (isOpen: boolean) => void;
-    tasksPending: Task[];
-    setTasksPending: (tasks: Task[]) => void;
-    tasksCompleted: Task[];
-    setTasksCompleted: (tasks: Task[]) => void;
+
   }
   | undefined
 >(undefined);
 
+// Défini le Provider pour le Contexte de tâches 
+// Est redéfini dans le layout
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTask, setNewTask] = useState<Task | null>(null)
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
-
-  const [tasksPending, setTasksPending] = useState<Task[]>([])
-  const [tasksCompleted, setTasksCompleted] = useState<Task[]>([])
 
   const refreshTasks = async () => {
-    const data = await getTasks();
+    const data = await getTasksAPI();
     setTasks(data);
   };
 
-  const addTask = async (task: Task) => {
-    const data = await postTasks(task)
-    setTasks([...tasks, data])
-  }
-
-  const deleteTask = async (id: number) => {
-    await deleteTasks(id)
-    setTasks(tasks.filter((task) => task.id !== id))
-  }
-
 
   return (
-    <TaskContext.Provider value={{ tasks, setTasks, refreshTasks, addTask, deleteTask, newTask, setNewTask, isTaskModalOpen, setIsTaskModalOpen, tasksPending, setTasksPending, tasksCompleted, setTasksCompleted }}>
+    <TaskContext.Provider value={{ tasks, setTasks, refreshTasks }}>
       {children}
     </TaskContext.Provider>
   );
 }
 
+// Hook personnalisé pour utilisé le TaskContext
 
 export function useTaskContext() {
   const tasks = useContext(TaskContext)
