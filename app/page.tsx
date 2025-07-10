@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import TaskModal from './_components/taskModal'
 import { Task } from './_utils/types'
 import { useTaskContext } from './_useContext/taskContext'
-import { deleteTasksAPI, updateTasksAPI } from './_api/fetch'
+import { deleteTasksAPI, getTaskIdAPI, updateTasksAPI } from './_api/fetch'
 
 
 export default function Home() {
@@ -16,9 +16,10 @@ export default function Home() {
 
   // gestion d'état des tâches
 
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [newTask, setNewTask] = useState<Task | null>(null)
-
+  const [isCreationTaskModalOpen, setIsCreationTaskModalOpen] = useState(false)
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
+  const [task, setTask] = useState<Task | null>(null)
   // récupération des tâches
   const tasksPending = tasks.filter((task: Task) => !task.completed)
   const tasksCompleted = tasks.filter((task: Task) => task.completed)
@@ -27,10 +28,21 @@ export default function Home() {
   // fonction de manipulation des tâches
   const openForm = () => {
     if (taskInput.current?.value) {
-      setIsTaskModalOpen(true)
+      setIsCreationTaskModalOpen(true)
       setNewTask({ id: tasksPending.length + 1, completed: false, title: taskInput.current?.value, description: '', assignee: '', deadline: '', priority: 'low' })
       taskInput.current!.value = ''
     }
+  }
+
+  const openTaskModalId = (id: number) => {
+    getTaskIdAPI(id)
+      .then((data) => {
+        setIsTaskModalOpen(true)
+        setTask(data[0])
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
 
@@ -42,7 +54,7 @@ export default function Home() {
         {tasksPending.map((task) => (
           <div className='border-2 border-gray-300 rounded-md p-2' key={task.id}>
 
-            <InteractionTabTasks task={task} />
+            <InteractionTabTasks task={task} openTaskId={openTaskModalId} />
 
           </div>
         ))}
@@ -56,7 +68,7 @@ export default function Home() {
         {tasksCompleted.map((task) => (
           <div className='border-2 border-gray-300 rounded-md p-2' key={task.id}>
 
-            <InteractionTabTasks task={task} />
+            <InteractionTabTasks task={task} openTaskId={openTaskModalId} />
 
           </div>
         ))}
@@ -92,12 +104,13 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <TaskModal isOpen={isTaskModalOpen} task={newTask!} onClose={() => setIsTaskModalOpen(false)} />
+      <TaskModal isOpen={isCreationTaskModalOpen} task={newTask!} onClose={() => setIsCreationTaskModalOpen(false)} isEditTask={false} />
+      <TaskModal isOpen={isTaskModalOpen} task={task!} onClose={() => setIsTaskModalOpen(false)} isEditTask={true} />
     </div>
   )
 }
 
-function InteractionTabTasks({ task }) {
+function InteractionTabTasks({ task, openTaskId }: { task: Task; openTaskId: (id: number) => void }) {
 
   const { tasks, setTasks, refreshTasks } = useTaskContext()
 
@@ -111,6 +124,8 @@ function InteractionTabTasks({ task }) {
     }
   }
 
+
+
   const deleteTask = (id: number) => {
     deleteTasksAPI(id)
       .then(() => refreshTasks())
@@ -118,11 +133,20 @@ function InteractionTabTasks({ task }) {
     refreshTasks()
   }
 
+  const formattedTitle = (taskTitle: string) => {
+    if (taskTitle.length > 20) {
+      return `${task.title.substring(0, 19)} ...`
+    }
+    return taskTitle
+  }
+
+
+
   return (
     <div className='flex items-center justify-center gap-10'>
-      <div className='flex-1'>{task.title}</div>
+      <button className='flex-1 rounded-md text-start hover:cursor-pointer hover:bg-gray-800' onClick={() => openTaskId(task.id)}>{formattedTitle(task.title)}</button>
       <div className='flex flex-none gap-5'>
-        <button className='bg-green-500 text-white rounded-md w-[20px] h-[20px] hover:bg-green-600 cursor-pointer' onClick={() => completeTask(task.id)}>✓</button>
+        <button className='text-white rounded-md w-[20px] h-[20px] hover:bg-green-600 cursor-pointer' style={{ backgroundColor: task.completed ? 'orange' : 'green' }} onClick={() => completeTask(task.id)}>{task.completed ? '↩' : '✓'}</button>
         <button className='bg-red-500 text-white rounded-md w-[20px] h-[20px] hover:bg-red-600 cursor-pointer' onClick={() => deleteTask(task.id)}>X</button>
       </div>
     </div>

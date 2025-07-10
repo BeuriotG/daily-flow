@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react"
 import { Task } from "../_utils/types"
-import { postTasksAPI } from "../_api/fetch"
+import { postTasksAPI, updateTasksAPI } from "../_api/fetch"
 import { useTaskContext } from "../_useContext/taskContext"
 
-export default function TaskModal({ isOpen, task, onClose }: { isOpen: boolean, task: Task, onClose: () => void }) {
+export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpen: boolean, task: Task, onClose: () => void, isEditTask: boolean }) {
+
+
     // gestion de l'ouverture et de la fermeture du modal
     const { setTasks, refreshTasks } = useTaskContext()
     const modalRef = useRef<HTMLDialogElement>(null)
@@ -39,11 +41,17 @@ export default function TaskModal({ isOpen, task, onClose }: { isOpen: boolean, 
             priority: (refs.priority.current?.value as 'low' | 'medium' | 'high') || 'low',
             completed: false,
         }
-
-        postTasksAPI(payload)
-            .then(() => refreshTasks())
-            .catch(error => console.error(error))
-        onClose()
+        if (!isEditTask) {
+            postTasksAPI(payload)
+                .then(() => refreshTasks())
+                .catch(error => console.error(error))
+            onClose()
+        } else {
+            updateTasksAPI(payload)
+                .then(() => refreshTasks())
+                .catch(error => console.error(error))
+            onClose()
+        }
     }
 
     if (!isOpen) return null
@@ -54,21 +62,22 @@ export default function TaskModal({ isOpen, task, onClose }: { isOpen: boolean, 
                 <p ref={refs.title}>{task?.title}</p>
                 <form id="task-form" className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     <label htmlFor="description" className="text-sm font-bold">Description of the task</label>
-                    <input type="text" name="description" placeholder="Description of the task" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.description} />
+                    <input type="text" name="description" placeholder="Description of the task" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.description} defaultValue={task?.description} />
                     <label htmlFor="assignee" className="text-sm font-bold">Who does it?</label>
-                    <input type="text" name="assignee" placeholder="Who does it?" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.assignee} />
+                    <input type="text" name="assignee" placeholder="Who does it?" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.assignee} defaultValue={task?.assignee} />
                     <label htmlFor="deadline" className="text-sm font-bold">Date of the deadline</label>
-                    <input type="date" name="deadline" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.deadline} />
+                    <input type="date" name="deadline" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.deadline} defaultValue={task?.deadline} />
                     <label htmlFor="priority" className="text-sm font-bold">Priority</label>
                     <select name="priority" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.priority}>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
+                        <option value="low" selected={task?.priority === 'low'}>Low</option>
+                        <option value="medium" selected={task?.priority === 'medium'}>Medium</option>
+                        <option value="high" selected={task?.priority === 'high'}>High</option>
                     </select>
                 </form>
                 <div className="flex flex-row gap-2">
                     <button onClick={onClose} className="bg-red-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-red-600 cursor-pointer">Annuler</button>
-                    <button type="submit" form="task-form" className="bg-green-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-green-600 cursor-pointer">Valider</button>
+                    {!isEditTask && <button type="submit" form="task-form" className="bg-green-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-green-600 cursor-pointer">Valider</button>}
+                    {isEditTask && <button type="submit" form="task-form" className="bg-green-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-green-600 cursor-pointer">Update</button>}
                 </div>
             </div>
         </dialog>
