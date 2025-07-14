@@ -2,6 +2,7 @@
 import { createContext, useContext, useState } from "react";
 import { Task } from "../_utils/types";
 import { getTasksAPI } from "../_api/fetch";
+import { useAuth } from "@/hooks/useAuth";
 
 // Défini le Contexte pour les tâches
 export const TaskContext = createContext<
@@ -18,10 +19,12 @@ export const TaskContext = createContext<
 // Est redéfini dans le layout
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
-
+  const { user } = useAuth();
   const refreshTasks = async () => {
-    const data = await getTasksAPI();
-    setTasks(data);
+    if (user?.id) {
+      const data = await getTasksAPI(user.id);
+      setTasks(data);
+    }
   };
 
 

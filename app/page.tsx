@@ -4,15 +4,24 @@ import TaskModal from './_components/taskModal'
 import { Task } from './_utils/types'
 import { useTaskContext } from './_useContext/taskContext'
 import { deleteTasksAPI, getTaskIdAPI, updateTasksAPI } from './_api/fetch'
+import { useAuth } from '@/hooks/useAuth'
+import Auth from './auth/page'
 
 
 export default function Home() {
 
+  const { user, loading, signOut } = useAuth()
+
+
   const { tasks, setTasks, refreshTasks } = useTaskContext()
 
   useEffect(() => {
-    refreshTasks()
-  }, [])
+    if (user?.id) {
+      console.log(user.id)
+      refreshTasks()
+    }
+  }, [user?.id])
+
 
   // gestion d'état des tâches
 
@@ -27,22 +36,33 @@ export default function Home() {
   const taskInput = useRef<HTMLInputElement>(null)
   // fonction de manipulation des tâches
   const openForm = () => {
-    if (taskInput.current?.value) {
+    if (taskInput.current?.value && user?.id) {
       setIsCreationTaskModalOpen(true)
-      setNewTask({ id: tasksPending.length + 1, completed: false, title: taskInput.current?.value, description: '', assignee: '', deadline: '', priority: 'low' })
+      setNewTask({
+        id: tasksPending.length + 1,
+        completed: false,
+        title: taskInput.current?.value,
+        description: '',
+        assignee: '',
+        deadline: '',
+        priority: 'low',
+        user_id: user.id
+      })
       taskInput.current!.value = ''
     }
   }
 
   const openTaskModalId = (id: number) => {
-    getTaskIdAPI(id)
-      .then((data) => {
-        setIsTaskModalOpen(true)
-        setTask(data[0])
-      })
-      .catch((error) => {
-        console.error(error)
-      })
+    if (user?.id) {
+      getTaskIdAPI(id, user?.id)
+        .then((data) => {
+          setIsTaskModalOpen(true)
+          setTask(data[0])
+        })
+        .catch((error) => {
+          console.error(error)
+        })
+    }
   }
 
 
@@ -83,9 +103,17 @@ export default function Home() {
     }
   }
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
+  if (!user) {
+    return <Auth />
+  }
+
   return (
-    <div>
+    <div className='flex flex-col items-center justify-center'>
       <h1 className="text-center text-4xl font-bold mt-10">Daily Flow</h1>
+      <button className='place-self-end bg-red-500 text-white rounded-md w-[100px] h-[20px] mr-[40%] hover:bg-red-600 cursor-pointer' onClick={signOut}>Sign Out</button>
 
       <div className='flex flex-col items-center justify-center mt-10'>
         <h2 className="text-center text-2xl font-bold my-5">What are we doing today?</h2>
@@ -113,11 +141,11 @@ export default function Home() {
 function InteractionTabTasks({ task, openTaskId }: { task: Task; openTaskId: (id: number) => void }) {
 
   const { tasks, setTasks, refreshTasks } = useTaskContext()
-
+  const { user } = useAuth()
   const completeTask = (id: number) => {
     const task = tasks.find((task: Task) => task.id === id)
-    if (task) {
-      updateTasksAPI({ ...task, completed: !task.completed })
+    if (task && user?.id) {
+      updateTasksAPI({ ...task, completed: !task.completed }, user?.id)
         .then(() => refreshTasks())
         .catch(error => console.error(error))
 
@@ -127,10 +155,11 @@ function InteractionTabTasks({ task, openTaskId }: { task: Task; openTaskId: (id
 
 
   const deleteTask = (id: number) => {
-    deleteTasksAPI(id)
-      .then(() => refreshTasks())
-      .catch(error => console.error(error))
-    refreshTasks()
+    if (user?.id) {
+      deleteTasksAPI(id, user?.id)
+        .then(() => refreshTasks())
+        .catch(error => console.error(error))
+    }
   }
 
   const formattedTitle = (taskTitle: string) => {

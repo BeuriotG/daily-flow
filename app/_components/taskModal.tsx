@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react"
 import { Task } from "../_utils/types"
 import { postTasksAPI, updateTasksAPI } from "../_api/fetch"
 import { useTaskContext } from "../_useContext/taskContext"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpen: boolean, task: Task, onClose: () => void, isEditTask: boolean }) {
 
@@ -9,6 +10,7 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
     // gestion de l'ouverture et de la fermeture du modal
     const { setTasks, refreshTasks } = useTaskContext()
     const modalRef = useRef<HTMLDialogElement>(null)
+    const { user } = useAuth()
 
     useEffect(() => {
         if (isOpen) {
@@ -41,13 +43,13 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
             priority: (refs.priority.current?.value as 'low' | 'medium' | 'high') || 'low',
             completed: false,
         }
-        if (!isEditTask) {
-            postTasksAPI(payload)
+        if (!isEditTask && user?.id) {
+            postTasksAPI(payload, user?.id)
                 .then(() => refreshTasks())
                 .catch(error => console.error(error))
             onClose()
-        } else {
-            updateTasksAPI(payload)
+        } else if (isEditTask && user?.id) {
+            updateTasksAPI(payload, user?.id)
                 .then(() => refreshTasks())
                 .catch(error => console.error(error))
             onClose()

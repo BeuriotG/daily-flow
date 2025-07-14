@@ -38,7 +38,11 @@ export function useAuth() {
   };
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error, data } = await supabase.auth.signUp({ email, password });
+    if (data.user?.aud === "authenticated") {
+      const message = "You are already registered";
+      return { message };
+    }
     return { error };
   };
 
