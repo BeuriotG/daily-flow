@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --sign-up-gradient: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
 }
 
 @theme inline {
@@ -25,7 +26,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Variables */
+/* --- Variables --- */
 @theme colors {
   --color-success: #008000;
   --color-reverse: #ffa500;
@@ -33,9 +34,7 @@ body {
   --color-primary: #0000ff;
 }
 
-/* Components */
-
-/* Buttons */
+/* --- Buttons --- */
 .btn {
   @apply rounded-md cursor-pointer;
 }
@@ -54,8 +53,12 @@ body {
 .btn-open-modal {
   @apply flex-1 rounded-md text-start hover:cursor-pointer hover:bg-gray-800;
 }
+.btn-sign-up {
+  background: var(--sign-up-gradient);
+  @apply text-white;
+}
 
-/* Inputs */
+/* --- Inputs --- */
 
 .input-task-entry-title {
   @apply p-2 rounded-md bg-white w-[500px] h-[50px] text-black;
@@ -64,7 +67,11 @@ body {
   @apply w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2;
 }
 
-/* Texts */
+.input-auth-page {
+  @apply text-black rounded-md border-b-2 border-gray-300 focus:outline-none;
+}
+
+/* --- Texts --- */
 
 .text-main-title-h1 {
   @apply text-center text-4xl font-bold mt-10;
@@ -72,8 +79,24 @@ body {
 .text-tasks-h2 {
   @apply text-center text-2xl font-bold my-5;
 }
+.text-task-modal-title {
+  @apply text-center text-2xl font-bold;
+}
+.text-task-modal-form-label {
+  @apply text-sm font-bold;
+}
+.text-auth-page-title {
+  @apply text-2xl font-bold text-center;
+}
+.text-auth-client-message {
+  @apply text-sm text-gray-500;
+}
+.text-auth-client-message-link {
+  @apply text-blue-500 cursor-pointer;
+}
 
-/* Layouts */
+/* --- Layouts --- */
+/* Main page */
 
 .layout-container-main-page {
   @apply flex flex-col items-center justify-center;
@@ -100,6 +123,7 @@ body {
   @apply border-2 border-gray-300 rounded-md p-2;
 }
 
+/* Interaction Task Buttons */
 .layout-container-task-interaction-bar {
   @apply flex items-center justify-center gap-10;
 }
@@ -108,10 +132,34 @@ body {
   @apply flex flex-none gap-5;
 }
 
+/* Task Modal */
+
 .layout-container-dialog-task-modal {
   @apply fixed top-0 left-0 w-full h-full flex items-center justify-center;
 }
 
 .layout-container-task-modal-form {
   @apply bg-white p-4 rounded-md w-[800px] h-[800px] flex flex-col items-center justify-start gap-4;
+}
+
+.layout-container-task-modal-form-content {
+  @apply flex flex-col gap-2;
+}
+
+.layout-container-task-modal-form-buttons {
+  @apply flex flex-row gap-2 mt-10;
+}
+
+/* Auth */
+
+.layout-container-auth-page {
+  @apply flex flex-col items-center justify-center min-h-screen;
+}
+
+.layout-container-auth-page-form {
+  @apply grid grid-cols-1 gap-4;
+}
+
+.layout-container-auth-page-form-content {
+  @apply grid grid-cols-1 gap-4 px-5 py-5 w-[300px] h-[350px] bg-white rounded-md;
 }

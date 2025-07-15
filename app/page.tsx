@@ -11,16 +11,7 @@ import Auth from './auth/page'
 export default function Home() {
 
   const { user, loading, signOut } = useAuth()
-  const { tasks, refreshTasks } = useTaskContext()
-
-  useEffect(() => {
-    if (user?.id) {
-      console.log(user.id)
-      refreshTasks()
-    }
-  }, [user?.id])
-
-  // gestion d'état des tâches
+  const { tasks } = useTaskContext()
 
   const [newTask, setNewTask] = useState<Task | null>(null)
   const [isCreationTaskModalOpen, setIsCreationTaskModalOpen] = useState(false)

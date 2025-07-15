@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Task } from "../_utils/types";
 import { getTasksAPI } from "../_api/fetch";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,7 @@ export const TaskContext = createContext<
 // Est redéfini dans le layout
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const refreshTasks = async () => {
     if (user?.id) {
       const data = await getTasksAPI(user.id);
@@ -27,6 +27,11 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  useEffect(() => {
+    if (!loading && user?.id) {
+      refreshTasks()
+    }
+  }, [user?.id, loading])
 
   return (
     <TaskContext.Provider value={{ tasks, setTasks, refreshTasks }}>
