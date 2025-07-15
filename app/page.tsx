@@ -1,19 +1,17 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import TaskModal from './_components/taskModal'
+import InteractionTaskButtons from './_components/interactionTaskButtons'
 import { Task } from './_utils/types'
 import { useTaskContext } from './_useContext/taskContext'
-import { deleteTasksAPI, getTaskIdAPI, updateTasksAPI } from './_api/fetch'
+import { getTaskIdAPI } from './_api/fetch'
 import { useAuth } from '@/hooks/useAuth'
 import Auth from './auth/page'
-
 
 export default function Home() {
 
   const { user, loading, signOut } = useAuth()
-
-
-  const { tasks, setTasks, refreshTasks } = useTaskContext()
+  const { tasks, refreshTasks } = useTaskContext()
 
   useEffect(() => {
     if (user?.id) {
@@ -21,7 +19,6 @@ export default function Home() {
       refreshTasks()
     }
   }, [user?.id])
-
 
   // gestion d'état des tâches
 
@@ -65,16 +62,14 @@ export default function Home() {
     }
   }
 
-
-
   // affichage des tâches
   const tasksTablePending = () => {
     return (
-      <div className='flex flex-col gap-2 w-[300px]'>
+      <div className='layout-container-tasks-individual-col'>
         {tasksPending.map((task) => (
-          <div className='border-2 border-gray-300 rounded-md p-2' key={task.id}>
+          <div className='layout-container-tasks-item' key={task.id}>
 
-            <InteractionTabTasks task={task} openTaskId={openTaskModalId} />
+            <InteractionTaskButtons task={task} openTaskId={openTaskModalId} />
 
           </div>
         ))}
@@ -84,11 +79,11 @@ export default function Home() {
 
   const tasksTableCompleted = () => {
     return (
-      <div className='flex flex-col gap-2 w-[300px]'>
+      <div className='layout-container-tasks-individual-col'>
         {tasksCompleted.map((task) => (
-          <div className='border-2 border-gray-300 rounded-md p-2' key={task.id}>
+          <div className='layout-container-tasks-item' key={task.id}>
 
-            <InteractionTabTasks task={task} openTaskId={openTaskModalId} />
+            <InteractionTaskButtons task={task} openTaskId={openTaskModalId} />
 
           </div>
         ))}
@@ -111,23 +106,23 @@ export default function Home() {
   }
 
   return (
-    <div className='flex flex-col items-center justify-center'>
-      <h1 className="text-center text-4xl font-bold mt-10">Daily Flow</h1>
-      <button className='place-self-end bg-red-500 text-white rounded-md w-[100px] h-[20px] mr-[40%] hover:bg-red-600 cursor-pointer' onClick={signOut}>Sign Out</button>
+    <div className='layout-container-main-page'>
+      <h1 className="text-main-title-h1">Daily Flow</h1>
+      <button className='btn btn-warning w-[100px] h-[30px] mt-10' onClick={signOut}>Sign Out</button>
 
-      <div className='flex flex-col items-center justify-center mt-10'>
-        <h2 className="text-center text-2xl font-bold my-5">What are we doing today?</h2>
-        <div className="flex items-center justify-center gap-2">
-          <input type="text" placeholder="Task" ref={taskInput} onKeyDown={keyDownOpenForm} className="p-2 rounded-md bg-white w-[500px] h-[50px] text-black" />
-          <button className="bg-blue-500 text-white text-center rounded-md w-[50px] h-[50px] text-4xl" onClick={openForm} >+</button>
+      <div className='layout-container-main-page-content'>
+        <h2 className="text-tasks-h2">What are we doing today?</h2>
+        <div className="layout-container-user-input">
+          <input type="text" placeholder="Task" ref={taskInput} onKeyDown={keyDownOpenForm} className="input-task-entry-title" />
+          <button className="btn btn-primary w-[50px] h-[50px] text-4xl" onClick={openForm} >+</button>
         </div>
-        <div className='flex flex-row gap-2 items-start justify-center mt-10'>
-          <div className='flex flex-col items-center justify-center mt-10'>
-            <h2 className="text-center text-2xl font-bold my-5">Tasks pending</h2>
+        <div className='layout-container-tasks-full-board'>
+          <div className='layout-container-tasks-cols'>
+            <h2 className="text-tasks-h2">Tasks pending</h2>
             <div>{tasksTablePending()}</div>
           </div>
-          <div className='flex flex-col items-center justify-center mt-10'>
-            <h2 className="text-center text-2xl font-bold my-5">Tasks completed</h2>
+          <div className='layout-container-tasks-cols'>
+            <h2 className="text-tasks-h2">Tasks completed</h2>
             <div>{tasksTableCompleted()}</div>
           </div>
         </div>
@@ -138,46 +133,3 @@ export default function Home() {
   )
 }
 
-function InteractionTabTasks({ task, openTaskId }: { task: Task; openTaskId: (id: number) => void }) {
-
-  const { tasks, setTasks, refreshTasks } = useTaskContext()
-  const { user } = useAuth()
-  const completeTask = (id: number) => {
-    const task = tasks.find((task: Task) => task.id === id)
-    if (task && user?.id) {
-      updateTasksAPI({ ...task, completed: !task.completed }, user?.id)
-        .then(() => refreshTasks())
-        .catch(error => console.error(error))
-
-    }
-  }
-
-
-
-  const deleteTask = (id: number) => {
-    if (user?.id) {
-      deleteTasksAPI(id, user?.id)
-        .then(() => refreshTasks())
-        .catch(error => console.error(error))
-    }
-  }
-
-  const formattedTitle = (taskTitle: string) => {
-    if (taskTitle.length > 20) {
-      return `${task.title.substring(0, 19)} ...`
-    }
-    return taskTitle
-  }
-
-
-
-  return (
-    <div className='flex items-center justify-center gap-10'>
-      <button className='flex-1 rounded-md text-start hover:cursor-pointer hover:bg-gray-800' onClick={() => openTaskId(task.id)}>{formattedTitle(task.title)}</button>
-      <div className='flex flex-none gap-5'>
-        <button className='text-white rounded-md w-[20px] h-[20px] hover:bg-green-600 cursor-pointer' style={{ backgroundColor: task.completed ? 'orange' : 'green' }} onClick={() => completeTask(task.id)}>{task.completed ? '↩' : '✓'}</button>
-        <button className='bg-red-500 text-white rounded-md w-[20px] h-[20px] hover:bg-red-600 cursor-pointer' onClick={() => deleteTask(task.id)}>X</button>
-      </div>
-    </div>
-  )
-}
