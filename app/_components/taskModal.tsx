@@ -58,28 +58,28 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
 
     if (!isOpen) return null
     return (
-        <dialog ref={modalRef} open={isOpen} onClose={() => onClose()} className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
-            <div className='bg-white p-4 rounded-md w-[800px] h-[800px] flex flex-col items-center justify-start gap-4'>
+        <dialog ref={modalRef} open={isOpen} onClose={() => onClose()} className="layout-container-dialog-task-modal bg-black bg-opacity-50">
+            <div className='layout-container-task-modal-form'>
                 <h1 className="text-2xl font-bold">Task Modal</h1>
                 <p ref={refs.title}>{task?.title}</p>
                 <form id="task-form" className="flex flex-col gap-2" onSubmit={handleSubmit}>
                     <label htmlFor="description" className="text-sm font-bold">Description of the task</label>
-                    <input type="text" name="description" placeholder="Description of the task" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.description} defaultValue={task?.description} />
+                    <input type="text" name="description" placeholder="Description of the task" className="input-task-modal" ref={refs.description} defaultValue={task?.description} />
                     <label htmlFor="assignee" className="text-sm font-bold">Who does it?</label>
-                    <input type="text" name="assignee" placeholder="Who does it?" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.assignee} defaultValue={task?.assignee} />
+                    <input type="text" name="assignee" placeholder="Who does it?" className="input-task-modal" ref={refs.assignee} defaultValue={task?.assignee} />
                     <label htmlFor="deadline" className="text-sm font-bold">Date of the deadline</label>
-                    <input type="date" name="deadline" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.deadline} defaultValue={task?.deadline} />
+                    <input type="date" name="deadline" className="input-task-modal" ref={refs.deadline} defaultValue={task?.deadline} />
                     <label htmlFor="priority" className="text-sm font-bold">Priority</label>
-                    <select name="priority" className="w-[500px] h-[50px] border-2 border-gray-300 rounded-md p-2" ref={refs.priority}>
+                    <select name="priority" className="input-task-modal" ref={refs.priority}>
                         <option value="low" selected={task?.priority === 'low'}>Low</option>
                         <option value="medium" selected={task?.priority === 'medium'}>Medium</option>
                         <option value="high" selected={task?.priority === 'high'}>High</option>
                     </select>
                 </form>
                 <div className="flex flex-row gap-2">
-                    <button onClick={onClose} className="bg-red-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-red-600 cursor-pointer">Annuler</button>
-                    {!isEditTask && <button type="submit" form="task-form" className="bg-green-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-green-600 cursor-pointer">Valider</button>}
-                    {isEditTask && <button type="submit" form="task-form" className="bg-green-500 text-white p-2 rounded-md w-[100px] h-[50px] hover:bg-green-600 cursor-pointer">Update</button>}
+                    <button onClick={onClose} className="btn btn-warning p-2 w-[100px] h-[50px]">Annuler</button>
+                    {!isEditTask && <button type="submit" form="task-form" className="btn btn-success p-2 w-[100px] h-[50px]">Valider</button>}
+                    {isEditTask && <button type="submit" form="task-form" className="btn btn-reverse p-2 w-[100px] h-[50px]">Update</button>}
                 </div>
             </div>
         </dialog>
