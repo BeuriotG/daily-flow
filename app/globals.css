@@ -85,7 +85,15 @@ body {
 .text-task-modal-form-label {
   @apply text-sm font-bold;
 }
-.text-auth-page-title {
+.text-auth-page-title-h1 {
+  @apply text-center text-4xl font-bold mb-10;
+  background: var(--sign-up-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+.text-auth-page-title-h2 {
   @apply text-2xl font-bold text-center;
 }
 .text-auth-client-message {
@@ -93,6 +101,12 @@ body {
 }
 .text-auth-client-message-link {
   @apply text-blue-500 cursor-pointer;
+}
+.text-auth-client-error-message {
+  @apply text-xl text-red-500 text-center;
+}
+.text-auth-client-success-message {
+  @apply text-xl text-green-500 text-center;
 }
 
 /* --- Layouts --- */

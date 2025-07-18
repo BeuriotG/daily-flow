@@ -37,7 +37,15 @@ export function useAuth() {
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    passwordConfirm: string
+  ) => {
+    if (password !== passwordConfirm) {
+      const message = "Passwords do not match";
+      return { message };
+    }
     const { error, data } = await supabase.auth.signUp({ email, password });
     if (data.user?.aud === "authenticated") {
       const message = "You are already registered";
@@ -51,5 +59,26 @@ export function useAuth() {
     return { error };
   };
 
-  return { user, loading, signIn, signUp, signOut };
+  const resetPasswordForEmail = async (email: string) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    return { data, error };
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    const { data, error } = await supabase.auth.updateUser({
+      email: user?.email,
+      password: newPassword,
+    });
+    return { data, error };
+  };
+
+  return {
+    user,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    resetPasswordForEmail,
+    updatePassword,
+  };
 }
