@@ -11,7 +11,7 @@ export default function Auth() {
     const [passwordSignUp, setPasswordSignUp] = useState('')
     const [emailSignIn, setEmailSignIn] = useState('')
     const [passwordSignIn, setPasswordSignIn] = useState('')
-    const [message, setMessage] = useState('')
+    const [message, setMessage] = useState({ message: '', error: true })
     const [isLoading, setIsLoading] = useState(false)
     const [passwordConfirm, setPasswordConfirm] = useState('')
     const router = useRouter()
@@ -37,7 +37,7 @@ export default function Auth() {
     }
 
     function clearErrorMessage() {
-        setMessage('')
+        setMessage({ message: '', error: true })
     }
 
     const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,14 +45,13 @@ export default function Auth() {
         setIsLoading(true)
         const { error, message } = await signUp(emailSignUp, passwordSignUp, passwordConfirm)
         if (error) {
-            console.log(error)
+            setMessage({ message: error.message, error: true })
         }
         if (message) {
-            setMessage(message)
+            setMessage({ message: message, error: true })
         }
         clearForm()
         setIsLoading(false)
-        router.push('/')
     }
 
     const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -60,10 +59,11 @@ export default function Auth() {
         setIsLoading(true)
         const { error } = await signIn(emailSignIn, passwordSignIn)
         if (error) {
-            console.log(error)
+            setMessage({ message: error.message, error: true })
         }
         clearForm()
         setIsLoading(false)
+        router.push('/')
     }
 
     async function resetPassword() {
@@ -71,10 +71,9 @@ export default function Auth() {
         if (email) {
             const { data, error } = await resetPasswordForEmail(email)
             if (error) {
-                console.log(error)
-            }
-            if (data) {
-                console.log(data)
+                setMessage({ message: error.message, error: true })
+            } else if (data) {
+                setMessage({ message: "An email has been sent to reset your password", error: false })
             }
         }
     }
@@ -93,8 +92,8 @@ export default function Auth() {
                     <button className="btn btn-sign-up mt-4" disabled={isLoading} type="submit">{isLoading ? "Loading..." : isSigningUp ? "Submit email" : "Sign In"}</button>
                     <p className="text-auth-client-message">{isSigningUp ? "Already have an account?" : "Don't have an account?"} <span className="text-auth-client-message-link" onClick={switchForm}>{isSigningUp ? "Sign In" : "Sign Up"}</span></p>
                     <p className="text-auth-client-message-link" onClick={() => resetPassword()}>Forgot your password?</p>
+                    <p className={`text-auth-client-error-message ${message.error ? 'text-auth-client-error-message' : 'text-auth-client-success-message'}`}>{message.message}</p>
                 </form>
-                <p className="text-auth-error-message">{message}</p>
             </div>
 
         </div>
