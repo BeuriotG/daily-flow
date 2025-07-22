@@ -1,6 +1,6 @@
 'use client'
 import { useAuth } from "@/hooks/useAuth"
-import { useState } from "react"
+import { useReducer, useState } from "react"
 import { useRouter } from "next/navigation"
 export default function ResetPassword() {
 
@@ -9,6 +9,8 @@ export default function ResetPassword() {
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [message, setMessage] = useState('')
+
+
 
     function clearForm() {
         setNewPassword('')
@@ -29,7 +31,7 @@ export default function ResetPassword() {
         }
         if (data) {
             setMessage("Password updated")
-            router.push('/auth')
+            router.push('/auth/login')
         }
 
     }

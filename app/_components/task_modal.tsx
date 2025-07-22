@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react"
 import { Task } from "../_utils/types"
-import { postTasksAPI, updateTasksAPI } from "../_api/fetch"
-import { useTaskContext } from "../_useContext/taskContext"
+import { postTasksAPI, updateTasksAPI } from "../_api/fetch_tasks"
+import { useTaskContext } from "../_useContext/task_context"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpen: boolean, task: Task, onClose: () => void, isEditTask: boolean }) {
 
 
     // gestion de l'ouverture et de la fermeture du modal
-    const { setTasks, refreshTasks } = useTaskContext()
+    const { createTask, updateTask } = useTaskContext()
     const modalRef = useRef<HTMLDialogElement>(null)
     const { user } = useAuth()
 
@@ -31,11 +31,11 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
     }
 
     // gestion du submit du formulaire et formatage du payload
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         const payload = {
-            id: task.id,
+            id: task?.id,
             title: refs.title.current?.textContent || task.title,
             description: refs.description.current?.value || '',
             assignee: refs.assignee.current?.value || '',
@@ -43,15 +43,12 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
             priority: (refs.priority.current?.value as 'low' | 'medium' | 'high') || 'low',
             completed: false,
         }
+
         if (!isEditTask && user?.id) {
-            postTasksAPI(payload, user?.id)
-                .then(() => refreshTasks())
-                .catch(error => console.error(error))
+            createTask(user?.id, payload)
             onClose()
         } else if (isEditTask && user?.id) {
-            updateTasksAPI(payload, user?.id)
-                .then(() => refreshTasks())
-                .catch(error => console.error(error))
+            updateTask(user?.id, payload)
             onClose()
         }
     }
