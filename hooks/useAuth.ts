@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
@@ -29,7 +30,7 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -75,7 +76,7 @@ export function useAuth() {
   return {
     user,
     loading,
-    signIn,
+    login,
     signUp,
     signOut,
     resetPasswordForEmail,

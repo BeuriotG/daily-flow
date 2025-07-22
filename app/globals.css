@@ -123,18 +123,18 @@ body {
 }
 
 .layout-container-tasks-full-board {
-  @apply flex flex-row gap-2 items-start justify-center mt-10;
+  @apply flex flex-col gap-2 items-start justify-center mt-10 w-[700px];
 }
 
 .layout-container-tasks-cols {
-  @apply flex flex-col items-center justify-center mt-10;
+  @apply flex flex-col items-start justify-center mt-10 w-full;
 }
 
 .layout-container-tasks-individual-col {
-  @apply flex flex-col gap-2 w-[300px];
+  @apply flex flex-col gap-2;
 }
 .layout-container-tasks-item {
-  @apply border-2 border-gray-300 rounded-md p-2;
+  @apply border-2 border-gray-300 rounded-md p-2 w-[700px];
 }
 
 /* Interaction Task Buttons */
