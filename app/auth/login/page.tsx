@@ -18,7 +18,7 @@ export default function Auth() {
         if (user) {
             router.push('/')
         }
-    }, [user])
+    }, [user, router])
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -112,7 +112,7 @@ export default function Auth() {
                     <input className="input-auth-page" required type="email" name="email" id="email" placeholder="Email" value={formLogin.email} onChange={(e) => setFormLogin({ ...formLogin, email: e.target.value })} />
                     <input className="input-auth-page" required type="password" name="password" id="password" placeholder="Password" value={formLogin.password} onChange={(e) => setFormLogin({ ...formLogin, password: e.target.value })} />
                     <button className="btn btn-sign-up mt-4" disabled={isLoading} type="submit">{isLoading ? "Loading..." : "Log In"}</button>
-                    <p className="text-auth-client-message">Don't have an account? <span className="text-auth-client-message-link" onClick={switchForm}>Sign Up</span></p>
+                    <p className="text-auth-client-message">Don&apos;t have an account? <span className="text-auth-client-message-link" onClick={switchForm}>Sign Up</span></p>
                     <p className="text-auth-client-message-link" onClick={() => resetPassword()}>Forgot your password?</p>
                     <p className={`text-auth-client-error-message ${message.error ? 'text-auth-client-error-message' : 'text-auth-client-success-message'}`}>{message.message}</p>
                 </form>

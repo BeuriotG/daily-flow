@@ -1,6 +1,6 @@
 'use client'
 import { useAuth } from "@/hooks/useAuth"
-import { useReducer, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 export default function ResetPassword() {
 

@@ -40,7 +40,7 @@ export const getTasksAPI = async (userId: string): Promise<Task[]> => {
 export const postTasksAPI = async (
   payload: Task,
   userId: string
-): Promise<any> => {
+): Promise<Task | null> => {
   const processedPayload = {
     title: payload.title,
     description: payload.description,
@@ -69,6 +69,8 @@ export const postTasksAPI = async (
       },
       body: JSON.stringify(processedPayload),
     });
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Fetch error:", error);
     return null;
@@ -78,7 +80,7 @@ export const postTasksAPI = async (
 export const updateTasksAPI = async (
   payload: Task,
   userId: string
-): Promise<any> => {
+): Promise<Task | null> => {
   const processedPayload = {
     title: payload.title,
     description: payload.description,
@@ -108,6 +110,8 @@ export const updateTasksAPI = async (
         body: JSON.stringify(processedPayload),
       }
     );
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Fetch error:", error);
     return null;
@@ -117,7 +121,7 @@ export const updateTasksAPI = async (
 export const deleteTasksAPI = async (
   id: number,
   userId: string
-): Promise<any> => {
+): Promise<Task | null> => {
   try {
     const {
       data: { session },
@@ -137,6 +141,8 @@ export const deleteTasksAPI = async (
         },
       }
     );
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Fetch error:", error);
     return null;
@@ -146,7 +152,7 @@ export const deleteTasksAPI = async (
 export const getTaskIdAPI = async (
   id: number,
   userId: string
-): Promise<any> => {
+): Promise<Task | null> => {
   try {
     const {
       data: { session },

@@ -11,12 +11,11 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
     const modalRef = useRef<HTMLDialogElement>(null)
     const { user } = useAuth()
     const [isClosing, setIsClosing] = useState(false)
-    const [taskData, setTaskData] = useState<Task | null>(task)
+    const [taskData, setTaskData] = useState<Task>(task)
 
     useEffect(() => {
         if (isOpen) {
             modalRef.current?.show()
-            console.log(task)
             setTaskData(task)
         }
         else {

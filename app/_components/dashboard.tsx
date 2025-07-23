@@ -11,7 +11,7 @@ import { formattedTitle, priorityColor, deadlineColor } from "@/app/_helpers/tas
 export default function Dashboard() {
     const { user, signOut } = useAuth()
     const { stateTasks } = useTaskContext()
-    const [newTask, setNewTask] = useState<Partial<Task> | null>(null)
+    const [newTask, setNewTask] = useState<Task | null>(null)
     const [isCreationTaskModalOpen, setIsCreationTaskModalOpen] = useState(false)
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
     const [task, setTask] = useState<Task | null>(null)
@@ -23,7 +23,7 @@ export default function Dashboard() {
             setIsCreationTaskModalOpen(true)
             setNewTask({
                 completed: false,
-                title: taskInput.current?.value,
+                title: taskInput.current?.value || '',
                 description: '',
                 assignee: '',
                 deadline: '',
@@ -39,7 +39,7 @@ export default function Dashboard() {
             getTaskIdAPI(id, user?.id)
                 .then((data) => {
                     setIsTaskModalOpen(true)
-                    setTask(data[0])
+                    setTask(data!)
                 })
                 .catch((error) => {
                     console.error(error)
@@ -87,7 +87,7 @@ export default function Dashboard() {
                                 </span>
                             </td>
                             <td>
-                                <InteractionTaskButtons task={task} openTaskId={openTaskModalId} />
+                                <InteractionTaskButtons task={task} />
                             </td>
                         </tr>
                     ))}

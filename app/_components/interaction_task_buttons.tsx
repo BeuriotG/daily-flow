@@ -1,7 +1,7 @@
 import { useTaskContext } from "../_useContext/task_context"
 import { Task } from "../_utils/types"
 
-export default function InteractionTaskButtons({ task, openTaskId }: { task: Task; openTaskId: (id: number) => void }) {
+export default function InteractionTaskButtons({ task }: { task: Task }) {
 
     const { completeTask, deleteTask } = useTaskContext()
 

@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useReducer } from "react";
 import { Task } from "../_utils/types";
 import { deleteTasksAPI, getTasksAPI, postTasksAPI, updateTasksAPI } from "../_api/fetch_tasks";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,7 +60,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
 
   // Refacto en cours
 
-  const refreshTasks = async () => {
+  const refreshTasks = useCallback(async () => {
     if (user?.id) {
       try {
         const tasks = await getTasksAPI(user.id);
@@ -76,9 +76,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         alert('Error during sync with the server')
+        console.error('Error during sync with the server', error)
       }
     }
-  };
+  }, [user?.id, dispatchTasks]);
 
   const createTask = async (userId: string, payload: Task) => {
     if (user?.id && payload) {
@@ -88,6 +89,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       }
       catch (error) {
         alert('Error during sync with the server')
+        console.error('Error during sync with the server', error)
       }
     }
   }
@@ -102,6 +104,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       dispatchTasks({ type: 'TOGGLE_COMPLETE', payload: task! })
       alert('Error during sync with the server')
+      console.error('Error during sync with the server', error)
     }
   }
 
@@ -115,6 +118,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         dispatchTasks({ type: 'UPDATE_TASK', payload: task! })
         alert('Error during sync with the server')
+        console.error('Error during sync with the server', error)
       }
     }
 
@@ -131,12 +135,13 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       catch (error) {
         dispatchTasks({ type: 'ADD_TASK', payload: task! })
         alert('Error during sync with the server')
+        console.error('Error during sync with the server', error)
       }
     }
   }
 
   const sortBy = (sortParam: string, direction: string) => {
-    const sortedTasks = stateTasks.filter((task: Task) => !task.completed).sort((a: Task, b: Task) => {
+    const sortedTasks = stateTasks.filter((task: Task) => !task.completed).sort((a: Task, b: Task): number => {
       if (sortParam === 'deadline' && a.deadline && b.deadline) {
         if (a.deadline === b.deadline) {
           return 0;
@@ -148,7 +153,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             return new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
           case 'neutral':
             refreshTasks()
-            break
+            return 0
         }
       }
       else if (sortParam === 'priority' && a.priority && b.priority) {
@@ -163,7 +168,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             return priorityOrder.indexOf(b.priority) - priorityOrder.indexOf(a.priority)
           case 'neutral':
             refreshTasks()
-            break
+            return 0
         }
       }
       else if (sortParam === 'assignee' && a.assignee && b.assignee) {
@@ -177,12 +182,10 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
             return b.assignee.localeCompare(a.assignee)
           case 'neutral':
             refreshTasks()
-            break
+            return 0
         }
       }
-      else {
-        return 0;
-      }
+      return 0;
     })
     switch (sortParam) {
       case 'deadline':
@@ -205,7 +208,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     if (!loading && user?.id) {
       refreshTasks()
     }
-  }, [user?.id, loading])
+  }, [user?.id, loading, refreshTasks])
 
 
 
