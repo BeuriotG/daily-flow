@@ -9,7 +9,7 @@ export const TaskContext = createContext<
   | {
     stateTasks: Task[];
     refreshTasks: () => void;
-    sortBy: (sortParam: string) => void;
+    sortBy: (sortParam: string, direction: string) => void;
     completeTask: (id: number) => void;
     deleteTask: (id: number) => void;
     updateTask: (userId: string, payload: Task) => void;
@@ -32,6 +32,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     | { type: 'UPDATE_TASK', payload: Task }
     | { type: 'SORT_BY_DEADLINE', payload: Task[] }
     | { type: 'SORT_BY_PRIORITY', payload: Task[] }
+    | { type: 'SORT_BY_ASSIGNEE', payload: Task[] }
   const taskReducer = (state: Task[], action: TaskAction): Task[] => {
     switch (action.type) {
       case 'INITIALIZE_TASKS':
@@ -47,6 +48,8 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       case 'SORT_BY_DEADLINE':
         return action.payload
       case 'SORT_BY_PRIORITY':
+        return action.payload
+      case 'SORT_BY_ASSIGNEE':
         return action.payload
       default:
         return state
@@ -132,34 +135,70 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const sortBy = (sortParam: string) => {
+  const sortBy = (sortParam: string, direction: string) => {
     const sortedTasks = stateTasks.filter((task: Task) => !task.completed).sort((a: Task, b: Task) => {
       if (sortParam === 'deadline' && a.deadline && b.deadline) {
-        if (a.deadline && b.deadline) {
-          return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+        if (a.deadline === b.deadline) {
+          return 0;
         }
-        return 0;
+        switch (direction) {
+          case 'asc':
+            return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+          case 'desc':
+            return new Date(b.deadline).getTime() - new Date(a.deadline).getTime()
+          case 'neutral':
+            refreshTasks()
+            break
+        }
       }
       else if (sortParam === 'priority' && a.priority && b.priority) {
         if (a.priority === b.priority) {
           return 0;
         }
         const priorityOrder = ['high', 'medium', 'low']
-        return priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority)
+        switch (direction) {
+          case 'asc':
+            return priorityOrder.indexOf(a.priority) - priorityOrder.indexOf(b.priority)
+          case 'desc':
+            return priorityOrder.indexOf(b.priority) - priorityOrder.indexOf(a.priority)
+          case 'neutral':
+            refreshTasks()
+            break
+        }
+      }
+      else if (sortParam === 'assignee' && a.assignee && b.assignee) {
+        if (a.assignee === b.assignee) {
+          return 0;
+        }
+        switch (direction) {
+          case 'asc':
+            return a.assignee.localeCompare(b.assignee)
+          case 'desc':
+            return b.assignee.localeCompare(a.assignee)
+          case 'neutral':
+            refreshTasks()
+            break
+        }
       }
       else {
         return 0;
       }
     })
-    if (sortParam === 'deadline') {
-      dispatchTasks({ type: 'SORT_BY_DEADLINE', payload: [...sortedTasks, ...stateTasks.filter((task: Task) => task.completed)] })
+    switch (sortParam) {
+      case 'deadline':
+        dispatchTasks({ type: 'SORT_BY_DEADLINE', payload: [...sortedTasks, ...stateTasks.filter((task: Task) => task.completed)] })
+        break
+      case 'priority':
+        dispatchTasks({ type: 'SORT_BY_PRIORITY', payload: [...sortedTasks, ...stateTasks.filter((task: Task) => task.completed)] })
+        break
+      case 'assignee':
+        dispatchTasks({ type: 'SORT_BY_ASSIGNEE', payload: [...sortedTasks, ...stateTasks.filter((task: Task) => task.completed)] })
+        break
+      default:
+        refreshTasks()
     }
-    else if (sortParam === 'priority') {
-      dispatchTasks({ type: 'SORT_BY_PRIORITY', payload: [...sortedTasks, ...stateTasks.filter((task: Task) => task.completed)] })
-    }
-    else {
-      refreshTasks()
-    }
+
+
   }
 
   useEffect(() => {

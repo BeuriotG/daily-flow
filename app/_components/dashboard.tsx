@@ -1,12 +1,12 @@
 import { useTaskContext } from "@/app/_useContext/task_context"
-import { useEffect, useReducer, useState } from "react"
+import { useRef, useState } from "react"
 import { Task } from "@/app/_utils/types"
-import { useRef } from "react"
 import { getTaskIdAPI } from "@/app/_api/fetch_tasks"
 import { useAuth } from "@/hooks/useAuth"
 import TaskModal from "@/app/_components/task_modal"
 import InteractionTaskButtons from "@/app/_components/interaction_task_buttons"
 import TaskSortMenu from "./task_sort_menu"
+import { formattedTitle, priorityColor, deadlineColor } from "@/app/_helpers/taskUtils"
 
 export default function Dashboard() {
     const { user, signOut } = useAuth()
@@ -47,37 +47,53 @@ export default function Dashboard() {
         }
     }
 
-    const tasksTablePending = () => {
+    const headers = [
+        { title: "Task" },
+        { title: "Assignee", field: "assignee" },
+        { title: "Priority", field: "priority" },
+        { title: "Deadline", field: "deadline" },
+        { title: "Actions" }
+    ]
+
+
+
+    const tasksTable = (isCompleted: boolean) => {
         return (
-            <div className="flex flex-row gap-2 items-center justify-center">
-                <div className='layout-container-tasks-individual-col'>
-                    {stateTasks.filter((task: Task) => !task.completed).map((task) => (
-                        <div className='layout-container-tasks-item' key={task.id}>
-                            <InteractionTaskButtons task={task} openTaskId={openTaskModalId} />
-                        </div>
+            <table className="w-[1000px] table-fixed text-black border-collapse">
+                <thead className="bg-gray-200 border-solid border-b-2 border-black h-[50px]">
+                    <tr>
+                        {headers.map((header) => {
+                            if (header.field) {
+                                return <th key={header.field}><TaskSortMenu title={header.title} field={header.field} /></th>
+                            } else {
+                                return <th key={header.title}>{header.title}</th>
+                            }
+                        })}
+                    </tr>
+                </thead>
+                <tbody className="">
+                    {stateTasks.filter((task: Task) => isCompleted ? task.completed : !task.completed).map((task) => (
+                        <tr key={task.id} className=" border-y-2 border-black bg-gray-200 h-[50px]">
+                            <td className="px-2 text-start cursor-pointer hover:bg-gray-300" onClick={() => openTaskModalId(task.id!)}>{formattedTitle(task.title)}</td>
+                            <td className="text-center">{task.assignee}</td>
+                            <td className="text-center">
+                                <span className={`px-2 py-1 rounded-full text-white text-xs font-semibold ${priorityColor(task.priority)}`}>
+                                    {task.priority}
+                                </span>
+                            </td>
+                            <td className="text-center">
+                                <span className={`px-2 py-1 rounded-full text-white text-xs font-semibold ${deadlineColor(task.deadline!)}`}>
+                                    {task.deadline}
+                                </span>
+                            </td>
+                            <td>
+                                <InteractionTaskButtons task={task} openTaskId={openTaskModalId} />
+                            </td>
+                        </tr>
                     ))}
-                </div>
-                <TaskSortMenu />
-            </div>
-        )
-    }
+                </tbody>
 
-    const tasksTableCompleted = () => {
-        return (
-            <div className='layout-container-tasks-individual-col'>
-                {stateTasks.filter((task: Task) => task.completed).sort((a: Task, b: Task) => {
-                    if (a.id && b.id) {
-                        return b.id - a.id
-                    }
-                    return 0
-                }).map((task) => (
-                    <div className='layout-container-tasks-item' key={task.id}>
-
-                        <InteractionTaskButtons task={task} openTaskId={openTaskModalId} />
-
-                    </div>
-                ))}
-            </div>
+            </table >
         )
     }
 
@@ -86,8 +102,6 @@ export default function Dashboard() {
             openForm()
         }
     }
-
-
 
     return (
         <div className='layout-container-main-page'>
@@ -103,11 +117,11 @@ export default function Dashboard() {
                 <div className='layout-container-tasks-full-board'>
                     <div className='layout-container-tasks-cols'>
                         <h2 className="text-tasks-h2">Tasks pending</h2>
-                        <div>{tasksTablePending()}</div>
+                        <div>{tasksTable(false)}</div>
                     </div>
                     <div className='layout-container-tasks-cols'>
                         <h2 className="text-tasks-h2">Tasks completed</h2>
-                        <div>{tasksTableCompleted()}</div>
+                        <div>{tasksTable(true)}</div>
                     </div>
                 </div>
             </div>

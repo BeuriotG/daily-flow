@@ -5,7 +5,7 @@ export interface Task {
   description?: string;
   assignee?: string;
   deadline?: string;
-  priority?: "low" | "medium" | "high";
+  priority: "low" | "medium" | "high";
   completed: boolean;
   created_at?: string;
 }

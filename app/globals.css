@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: 255, 255, 255;
   --foreground: #171717;
   --sign-up-gradient: linear-gradient(90deg, #1cb5e0 0%, #000851 100%);
 }
@@ -15,13 +15,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: 25, 25, 25;
     --foreground: #ededed;
   }
 }
 
 body {
-  background: var(--background);
+  background: rgb(var(--background));
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -32,6 +32,27 @@ body {
   --color-reverse: #ffa500;
   --color-warning: #ff0000;
   --color-primary: #0000ff;
+  --bg-modal: rgb(71, 69, 69);
+}
+
+/* --- Animations --- */
+
+@keyframes slide-in-from-left {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-to-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 /* --- Buttons --- */
@@ -138,22 +159,25 @@ body {
 }
 
 /* Interaction Task Buttons */
-.layout-container-task-interaction-bar {
-  @apply flex items-center justify-center gap-10;
-}
 
 .layout-container-task-interaction-bar-buttons {
-  @apply flex flex-none gap-5;
+  @apply flex items-center justify-center flex-none gap-5;
 }
 
 /* Task Modal */
 
 .layout-container-dialog-task-modal {
-  @apply fixed top-0 left-0 w-full h-full flex items-center justify-center;
+  @apply fixed top-0 left-0 w-[30%] h-full flex items-center justify-center text-white;
+  background-color: var(--bg-modal);
+  animation: slide-in-from-left 0.5s ease-in-out forwards;
 }
-
+.layout-container-dialog-task-modal-close {
+  @apply fixed top-0 left-0 w-[30%] h-full flex items-center justify-center bg-black text-white;
+  background-color: var(--bg-modal);
+  animation: slide-out-to-left 0.5s ease-in-out;
+}
 .layout-container-task-modal-form {
-  @apply bg-white p-4 rounded-md w-[800px] h-[800px] flex flex-col items-center justify-start gap-4;
+  @apply p-4 rounded-md w-full h-full flex flex-col items-center justify-start gap-4;
 }
 
 .layout-container-task-modal-form-content {

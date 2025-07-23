@@ -1,17 +1,32 @@
+import { useState } from "react"
 import { useTaskContext } from "../_useContext/task_context"
+import { FaSortUp, FaSortDown, FaSort } from "react-icons/fa";
 
-export default function TaskSortMenu() {
+export default function TaskSortMenu({ title, field }: { title: string, field: string }) {
     const { sortBy } = useTaskContext()
-    return (
-        <div className="bg-white flex flex-col gap-2 items-center justify-center">
-            <label htmlFor="sort_param" className="text-black">Sort by</label>
-            <select name="sort_param" id="sort_param" className="text-black" onChange={(e) => sortBy(e.target.value)}>
-                <option className="" value="none">-- Reset --</option>
-                <option className="" value="deadline">Sort by deadline</option>
-                <option className="" value="priority">Sort by priority</option>
-            </select>
+    const [direction, setDirection] = useState('asc')
 
-        </div>
+    const handleClick = (field: string, direction: string) => {
+        switch (direction) {
+            case 'asc':
+                sortBy(field, 'asc')
+                setDirection('desc')
+                break
+            case 'desc':
+                sortBy(field, 'desc')
+                setDirection('neutral')
+                break
+            case 'neutral':
+                sortBy(field, 'neutral')
+                setDirection('asc')
+                break
+        }
+    }
+    return (
+
+        <button className="btn w-full" onClick={() => handleClick(field, `${direction}`)}> <span className="flex items-center justify-center gap-2">{title} {direction === 'asc' ? <FaSort /> : direction === 'desc' ? <FaSortUp /> : <FaSortDown />}</span></button>
+
+
 
     )
 }

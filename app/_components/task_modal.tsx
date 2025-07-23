@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Task } from "../_utils/types"
-import { postTasksAPI, updateTasksAPI } from "../_api/fetch_tasks"
 import { useTaskContext } from "../_useContext/task_context"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -11,15 +10,27 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
     const { createTask, updateTask } = useTaskContext()
     const modalRef = useRef<HTMLDialogElement>(null)
     const { user } = useAuth()
+    const [isClosing, setIsClosing] = useState(false)
+    const [taskData, setTaskData] = useState<Task | null>(task)
 
     useEffect(() => {
         if (isOpen) {
             modalRef.current?.show()
+            console.log(task)
+            setTaskData(task)
         }
         else {
             modalRef.current?.close()
         }
-    }, [isOpen])
+    }, [isOpen, task])
+
+    const handleClose = () => {
+        setIsClosing(true)
+        setTimeout(() => {
+            setIsClosing(false)
+            onClose()
+        }, 500)
+    }
 
     // gestion des références des inputs
     const refs = {
@@ -34,47 +45,47 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        const payload = {
+        const payload: Task = {
             id: task?.id,
-            title: refs.title.current?.textContent || task.title,
-            description: refs.description.current?.value || '',
-            assignee: refs.assignee.current?.value || '',
-            deadline: refs.deadline.current?.value || '',
-            priority: (refs.priority.current?.value as 'low' | 'medium' | 'high') || 'low',
+            title: refs.title.current?.textContent || taskData!.title,
+            description: refs.description.current?.value || taskData?.description,
+            assignee: refs.assignee.current?.value || taskData?.assignee,
+            deadline: refs.deadline.current?.value || taskData?.deadline,
+            priority: (refs.priority.current?.value as 'low' | 'medium' | 'high') || taskData?.priority,
             completed: false,
         }
 
         if (!isEditTask && user?.id) {
             createTask(user?.id, payload)
-            onClose()
+            handleClose()
         } else if (isEditTask && user?.id) {
             updateTask(user?.id, payload)
-            onClose()
+            handleClose()
         }
     }
 
     if (!isOpen) return null
     return (
-        <dialog ref={modalRef} open={isOpen} onClose={() => onClose()} className="layout-container-dialog-task-modal bg-black bg-opacity-50">
+        <dialog ref={modalRef} open={isOpen} onClose={() => handleClose()} className={` ${isClosing ? 'layout-container-dialog-task-modal-close' : 'layout-container-dialog-task-modal'}`}>
             <div className='layout-container-task-modal-form'>
                 <h1 className="text-task-modal-title">Task Modal</h1>
-                <p ref={refs.title}>{task?.title}</p>
+                <p ref={refs.title}>{taskData?.title}</p>
                 <form id="task-form" className="layout-container-task-modal-form-content" onSubmit={handleSubmit}>
                     <label htmlFor="description" className="text-task-modal-form-label">Description of the task</label>
-                    <input type="text" name="description" placeholder="Description of the task" className="input-task-modal" ref={refs.description} defaultValue={task?.description} />
+                    <input type="text" name="description" placeholder="Description of the task" className="input-task-modal" ref={refs.description} value={taskData?.description} onChange={(e) => setTaskData({ ...taskData!, description: e.target.value })} />
                     <label htmlFor="assignee" className="text-task-modal-form-label">Who does it?</label>
-                    <input type="text" name="assignee" placeholder="Who does it?" className="input-task-modal" ref={refs.assignee} defaultValue={task?.assignee} />
+                    <input type="text" name="assignee" placeholder="Who does it?" className="input-task-modal" ref={refs.assignee} value={taskData?.assignee} onChange={(e) => setTaskData({ ...taskData!, assignee: e.target.value })} />
                     <label htmlFor="deadline" className="text-task-modal-form-label">Date of the deadline</label>
-                    <input type="date" name="deadline" className="input-task-modal" ref={refs.deadline} defaultValue={task?.deadline} />
+                    <input type="date" name="deadline" className="input-task-modal" ref={refs.deadline} value={taskData?.deadline} onChange={(e) => setTaskData({ ...taskData!, deadline: e.target.value })} />
                     <label htmlFor="priority" className="text-task-modal-form-label">Priority</label>
-                    <select name="priority" className="input-task-modal" ref={refs.priority}>
-                        <option value="low" selected={task?.priority === 'low'}>Low</option>
-                        <option value="medium" selected={task?.priority === 'medium'}>Medium</option>
-                        <option value="high" selected={task?.priority === 'high'}>High</option>
+                    <select name="priority" className="input-task-modal" ref={refs.priority} value={taskData?.priority} onChange={(e) => setTaskData({ ...taskData!, priority: e.target.value as 'low' | 'medium' | 'high' })}>
+                        <option value="low" selected={taskData?.priority === 'low'}>Low</option>
+                        <option value="medium" selected={taskData?.priority === 'medium'}>Medium</option>
+                        <option value="high" selected={taskData?.priority === 'high'}>High</option>
                     </select>
                 </form>
                 <div className="layout-container-task-modal-form-buttons">
-                    <button onClick={onClose} className="btn btn-warning p-2 w-[100px] h-[50px]">Annuler</button>
+                    <button onClick={() => handleClose()} className="btn btn-warning p-2 w-[100px] h-[50px]">Annuler</button>
                     {!isEditTask && <button type="submit" form="task-form" className="btn btn-success p-2 w-[100px] h-[50px]">Valider</button>}
                     {isEditTask && <button type="submit" form="task-form" className="btn btn-reverse p-2 w-[100px] h-[50px]">Update</button>}
                 </div>
