@@ -8,18 +8,13 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
 
     // gestion de l'ouverture et de la fermeture du modal
     const { createTask, updateTask } = useTaskContext()
-    const modalRef = useRef<HTMLDialogElement>(null)
     const { user } = useAuth()
     const [isClosing, setIsClosing] = useState(false)
     const [taskData, setTaskData] = useState<Task>(task)
 
     useEffect(() => {
         if (isOpen) {
-            modalRef.current?.show()
             setTaskData(task)
-        }
-        else {
-            modalRef.current?.close()
         }
     }, [isOpen, task])
 
@@ -31,14 +26,7 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
         }, 500)
     }
 
-    // gestion des références des inputs
-    const refs = {
-        title: useRef<HTMLParagraphElement>(null),
-        description: useRef<HTMLInputElement>(null),
-        assignee: useRef<HTMLInputElement>(null),
-        deadline: useRef<HTMLInputElement>(null),
-        priority: useRef<HTMLSelectElement>(null),
-    }
+
 
     // gestion du submit du formulaire et formatage du payload
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,11 +34,11 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
 
         const payload: Task = {
             id: task?.id,
-            title: refs.title.current?.textContent || taskData!.title,
-            description: refs.description.current?.value || taskData?.description,
-            assignee: refs.assignee.current?.value || taskData?.assignee,
-            deadline: refs.deadline.current?.value || taskData?.deadline,
-            priority: (refs.priority.current?.value as 'low' | 'medium' | 'high') || taskData?.priority,
+            title: taskData!.title,
+            description: taskData?.description,
+            assignee: taskData?.assignee,
+            deadline: taskData?.deadline,
+            priority: taskData?.priority,
             completed: false,
         }
 
@@ -65,22 +53,22 @@ export default function TaskModal({ isOpen, task, onClose, isEditTask }: { isOpe
 
     if (!isOpen) return null
     return (
-        <dialog ref={modalRef} open={isOpen} onClose={() => handleClose()} className={` ${isClosing ? 'layout-container-dialog-task-modal-close' : 'layout-container-dialog-task-modal'}`}>
+        <dialog onClose={() => handleClose()} className={` ${isClosing ? 'layout-container-dialog-task-modal-close' : 'layout-container-dialog-task-modal'}`}>
             <div className='layout-container-task-modal-form'>
                 <h1 className="text-task-modal-title">Task Modal</h1>
-                <p ref={refs.title}>{taskData?.title}</p>
+                <p>{taskData?.title}</p>
                 <form id="task-form" className="layout-container-task-modal-form-content" onSubmit={handleSubmit}>
                     <label htmlFor="description" className="text-task-modal-form-label">Description of the task</label>
-                    <input type="text" name="description" placeholder="Description of the task" className="input-task-modal" ref={refs.description} value={taskData?.description} onChange={(e) => setTaskData({ ...taskData!, description: e.target.value })} />
+                    <input type="text" name="description" placeholder="Description of the task" className="input-task-modal" value={taskData?.description} onChange={(e) => setTaskData({ ...taskData!, description: e.target.value })} />
                     <label htmlFor="assignee" className="text-task-modal-form-label">Who does it?</label>
-                    <input type="text" name="assignee" placeholder="Who does it?" className="input-task-modal" ref={refs.assignee} value={taskData?.assignee} onChange={(e) => setTaskData({ ...taskData!, assignee: e.target.value })} />
+                    <input type="text" name="assignee" placeholder="Who does it?" className="input-task-modal" value={taskData?.assignee} onChange={(e) => setTaskData({ ...taskData!, assignee: e.target.value })} />
                     <label htmlFor="deadline" className="text-task-modal-form-label">Date of the deadline</label>
-                    <input type="date" name="deadline" className="input-task-modal" ref={refs.deadline} value={taskData?.deadline} onChange={(e) => setTaskData({ ...taskData!, deadline: e.target.value })} />
+                    <input type="date" name="deadline" className="input-task-modal" value={taskData?.deadline} onChange={(e) => setTaskData({ ...taskData!, deadline: e.target.value })} />
                     <label htmlFor="priority" className="text-task-modal-form-label">Priority</label>
-                    <select name="priority" className="input-task-modal" ref={refs.priority} value={taskData?.priority} onChange={(e) => setTaskData({ ...taskData!, priority: e.target.value as 'low' | 'medium' | 'high' })}>
-                        <option value="low" selected={taskData?.priority === 'low'}>Low</option>
-                        <option value="medium" selected={taskData?.priority === 'medium'}>Medium</option>
-                        <option value="high" selected={taskData?.priority === 'high'}>High</option>
+                    <select name="priority" className="input-task-modal" value={taskData?.priority} onChange={(e) => setTaskData({ ...taskData!, priority: e.target.value as 'low' | 'medium' | 'high' })}>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
                     </select>
                 </form>
                 <div className="layout-container-task-modal-form-buttons">

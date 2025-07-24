@@ -1,5 +1,5 @@
 import { useTaskContext } from "@/app/_useContext/task_context"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Task } from "@/app/_utils/types"
 import { getTaskIdAPI } from "@/app/_api/fetch_tasks"
 import { useAuth } from "@/hooks/useAuth"
@@ -34,16 +34,21 @@ export default function Dashboard() {
         }
     }
 
+    useEffect(() => {
+        if (task) {
+            setIsTaskModalOpen(true)
+        }
+    }, [task])
+
+    useEffect(() => {
+        if (newTask) {
+            setIsCreationTaskModalOpen(true)
+        }
+    }, [newTask])
+
     const openTaskModalId = (id: number) => {
         if (user?.id) {
-            getTaskIdAPI(id, user?.id)
-                .then((data) => {
-                    setIsTaskModalOpen(true)
-                    setTask(data!)
-                })
-                .catch((error) => {
-                    console.error(error)
-                })
+            setTask(stateTasks.find((task: Task) => task.id === id)!)
         }
     }
 
