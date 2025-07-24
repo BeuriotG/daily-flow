@@ -1,7 +1,6 @@
 import { useTaskContext } from "@/app/_useContext/task_context"
 import { useEffect, useRef, useState } from "react"
 import { Task } from "@/app/_utils/types"
-import { getTaskIdAPI } from "@/app/_api/fetch_tasks"
 import { useAuth } from "@/hooks/useAuth"
 import TaskModal from "@/app/_components/task_modal"
 import InteractionTaskButtons from "@/app/_components/interaction_task_buttons"
